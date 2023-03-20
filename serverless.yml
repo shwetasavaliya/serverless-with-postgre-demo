@@ -1,0 +1,36 @@
+service: serverless-demo
+
+frameworkVersion: "3"
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    noPrependStageInUrl: true
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage}
+
+  environment:
+    STAGE: ${opt:stage}
+    DB_HOST: ${file(env-${opt:stage}.json):DB_HOST}
+    DB_USERNAME: ${file(env-${opt:stage}.json):DB_USERNAME}
+    DB_PASSWORD: ${file(env-${opt:stage}.json):DB_PASSWORD}
+    DB_NAME: ${file(env-${opt:stage}.json):DB_NAME}
+    DB_PORT: ${file(env-${opt:stage}.json):DB_PORT}
+
+functions:
+  user:
+    handler: lambda/user/user.handler
+    timeout: 30
+    events:
+      - http:
+          path: /user/login
+          method: POST
+        
+      - http:
+          path: /user/create
+          method: POST
